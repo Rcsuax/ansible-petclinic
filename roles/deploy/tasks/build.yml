@@ -1,0 +1,25 @@
+- name: Make sure src directory doesn't exist
+  file:
+    path: /home/vagrant/src
+    state: absent
+    force: yes
+
+- name: Pull repository
+  git:
+    repo: https://github.com/Rcsuax/grails-petclinic.git
+    dest: /home/vagrant/src
+    version: master
+
+- name: Configure app to accept custom config
+  lineinfile:
+    dest: /home/vagrant/src/grails-app/conf/Config.groovy
+    line: "grails.config.locations = [\"classpath:${appName}-config.groovy\"]"
+
+- name: Build application
+  become: true
+  shell: ./grailsw war
+  args:
+    chdir: src/
+    creates: target/petclinic.war
+  environment:
+      JAVA_HOME: /usr/lib/jvm/java-8-oracle

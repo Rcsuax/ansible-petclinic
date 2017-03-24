@@ -1,0 +1,28 @@
+- name: "install nginx"
+  apt: pkg=nginx state=latest update_cache=yes install_recommends=yes
+
+- name: Copy nginx proxy configuration
+  template:
+    src: default.conf
+    dest: /etc/nginx/sites-enabled/default
+  notify:
+    - restart nginx
+
+- name: "install common software properties (apt-add-repository)"
+  apt: pkg=software-properties-common
+
+- name: "install wget"
+  apt: pkg=wget state=latest
+
+- name: "install git"
+  apt: pkg=git state=latest
+
+- name: Update APT package cache
+  apt:  update_cache=yes cache_valid_time=86400
+
+- name: "install tomcat7"
+  become: true
+  apt: pkg=tomcat7 state=latest
+
+- name: Wait for tomcat to start
+  wait_for: port=8080 timeout=60

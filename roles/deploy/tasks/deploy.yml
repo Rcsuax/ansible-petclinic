@@ -1,0 +1,33 @@
+- name: Ensure tomcat ROOT directory does not exist
+  file:
+    path: /var/lib/tomcat7/webapps/ROOT
+    state: absent
+
+- name: Copy WAR to tomcat
+  become: true
+  copy:
+    group: tomcat7
+    owner: tomcat7
+    remote_src: true
+    src: /home/vagrant/src/target/petclinic-4.0.war
+    dest: /var/lib/tomcat7/webapps/petclinic.war
+
+- name: Create srv path
+  file:
+    path: /srv/petclinic/
+    state: directory
+
+- name: Deploy external app config for data source
+  copy:
+    dest: /usr/share/tomcat7/lib/petclinic-config.groovy
+    content: "dataSource { url = \"jdbc:h2:/srv/petclinic/db/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE\" }"
+
+- name: Ensure App DB directory exists
+  file:
+    path: /srv/petclinic/db
+    state: directory
+    recurse: true
+    owner: tomcat7
+    group: tomcat7
+  notify:
+    - restart tomcat
