@@ -1,0 +1,1 @@
+release_version: "{{ lookup('env','RELEASE_VERSION') | default('master', true) }}"
