@@ -31,3 +31,4 @@
     group: tomcat7
   notify:
     - restart tomcat
+    - restart nginx
